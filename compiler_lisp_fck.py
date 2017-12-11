@@ -103,6 +103,7 @@ def add_sub(char, number, list_out):
     return list_out
 
 def compiler(tree, output_list):
+
     interactor = 0
     while interactor < len(tree):
         if isinstance(tree[interactor], tuple):

@@ -103,6 +103,10 @@ def add_sub(char, number, list_out):
     return list_out
 
 def compiler(tree, output_list):
+<<<<<<< HEAD
+=======
+    loop_active = False
+>>>>>>> e7300b0b63729a63fe719c1db31eda00c9f85cfc
     interactor = 0
     while interactor < len(tree):
         if isinstance(tree[interactor], tuple):
@@ -148,17 +152,26 @@ def compiler(tree, output_list):
     return output_list
 
 def treatOutputFile(tree):
+<<<<<<< HEAD
     file_output = open('outputFile.bf', 'w')
     output = []
     output = compiler(tree, output)
     file_output.write(''.join(output))
     file_output.close()
+=======
+    file_code = open('outputFile.bf', 'w')
+    output_list = []
+    output_list = compiler(tree, output_list)
+    file_code.write(''.join(output_list))
+    file_code.close()
+>>>>>>> e7300b0b63729a63fe719c1db31eda00c9f85cfc
     print('\nOutput file saved sucessfully!')
 
 @click.command()
 @click.argument('input_file', type=click.File('r'))
 
 def print_tree(input_file):
+<<<<<<< HEAD
     input_code = input_file.read()
     tokens = lexer(input_code)
     print('Tokens:\n', tokens)
@@ -166,6 +179,15 @@ def print_tree(input_file):
     print("\nTree:")
     pprint.pprint(syntatic_tree)
     treatOutputFile(syntatic_tree)
+=======
+    source_code = input_file.read()
+    tokens = lexer(source_code)
+    print('Tokens:\n', tokens)
+    tree = parser(tokens)
+    print("\nTree:")
+    pprint.pprint(tree)
+    treatOutputFile(tree)
+>>>>>>> e7300b0b63729a63fe719c1db31eda00c9f85cfc
 
 if __name__ == '__main__':
     print_tree()

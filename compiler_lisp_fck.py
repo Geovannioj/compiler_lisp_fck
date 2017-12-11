@@ -20,3 +20,42 @@ lexer = ox.make_lexer([
     ('ignore_COMMENT', r';[ \S]*'),
     ('ignore_SPACE', r'\s+')
 ])
+
+tokens_list = ['LOOP',
+          'DEC',
+          'INC',
+          'OPEN_PARENTHESIS',
+          'CLOSE_PARENTHESIS',
+          'RIGHT',
+          'LEFT',
+          'PRINT',
+          'READ',
+          'DO',
+          'DO_AFTER',
+          'DO_BEFORE',
+          'ADD',
+          'SUB',
+          'NUMBER',
+          'DEF']
+
+parser = ox.make_parser([
+    ('expr : OPEN_PARENTHESIS CLOSE_PARENTHESIS', lambda x,y: '()'),
+    ('expr : OPEN_PARENTHESIS term CLOSE_PARENTHESIS', lambda x,y,z: y),
+    ('term : atom term', lambda x,y: (x,) + y),
+    ('term : atom', lambda x: (x,)),
+    ('atom : expr', lambda x: x),
+    ('atom : DEC', lambda x: x),
+    ('atom : INC', lambda x: x),
+    ('atom : LOOP', lambda x: x),
+    ('atom : RIGHT', lambda x: x),
+    ('atom : LEFT', lambda x: x),
+    ('atom : PRINT', lambda x: x),
+    ('atom : READ', lambda x: x),
+    ('atom : DO', lambda x: x),
+    ('atom : DO_AFTER', lambda x: x),
+    ('atom : DO_BEFORE', lambda x: x),
+    ('atom : ADD', lambda x: x),
+    ('atom : SUB', lambda x: x),
+    ('atom : NUMBER', int),
+    ('atom : DEF', lambda x: x),
+], tokens_list)

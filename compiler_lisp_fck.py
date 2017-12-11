@@ -1,4 +1,6 @@
 import ox
+import click
+import pprint
 
 lexer = ox.make_lexer([
     ('LOOP', r'loop'),
@@ -17,6 +19,7 @@ lexer = ox.make_lexer([
     ('SUB', r'sub'),
     ('NUMBER', r'[0-9]+'),
     ('DEF', r'def'),
+    ('FUCTION', r'(?!loop)(?!dec)(?!inc)(?!right)(?!left)(?!print)(?!read)(?!do)(?!do)(?!do)(?!add)(?!sub)(?!def)(?!\d)[a-zA-Z0-9-\+_]+'),
     ('ignore_COMMENT', r';[ \S]*'),
     ('ignore_SPACE', r'\s+')
 ])
@@ -36,7 +39,8 @@ tokens_list = ['LOOP',
           'ADD',
           'SUB',
           'NUMBER',
-          'DEF']
+          'DEF',
+          'FUCTION']
 
 parser = ox.make_parser([
     ('expr : OPEN_PARENTHESIS CLOSE_PARENTHESIS', lambda x,y: '()'),
@@ -58,6 +62,7 @@ parser = ox.make_parser([
     ('atom : SUB', lambda x: x),
     ('atom : NUMBER', int),
     ('atom : DEF', lambda x: x),
+     ('atom : FUCTION', lambda x: x)
 ], tokens_list)
 
 # definition of functions
@@ -97,12 +102,11 @@ def add_sub(char, number, list_out):
 
     return list_out
 
-def lisp_f_ck_compiler(tree, output_list):
-    loop_active = False
+def compiler(tree, output_list):
     interactor = 0
     while interactor < len(tree):
         if isinstance(tree[interactor], tuple):
-            output_list = lisp_f_ck_compiler(tree[interactor], output_list)
+            output_list = compiler(tree[interactor], output_list)
         elif tree[interactor] == 'inc':
             output_list.append('+')
         elif tree[interactor] == 'dec':
@@ -126,19 +130,42 @@ def lisp_f_ck_compiler(tree, output_list):
             command = tree[interactor]
             interactor += 1 
             array = do_after(command, list(tree[interactor]))
-            output_list = lisp_f_ck_compiler(array, output_list)
+            output_list = compiler(array, output_list)
         elif tree[interactor] == 'do-before':
             interactor += 1 
             command = tree[interactor]
             interactor += 1 
             array = do_before(command, list(tree[interactor]))
-            output_list = lisp_f_ck_compiler(array, output_list)
+            output_list = compiler(array, output_list)
         elif tree[interactor] == 'loop':
             output_list.append('[')
-            output_list = lisp_f_ck_compiler(tree[interactor], output_list)
+            output_list = compiler(tree[interactor], output_list)
             output_list.append(']')
         elif tree[interactor] == 'def':
             pass
         interactor += 1
 
     return output_list
+
+def treatOutputFile(tree):
+    file_output = open('outputFile.bf', 'w')
+    output = []
+    output = compiler(tree, output)
+    file_output.write(''.join(output))
+    file_output.close()
+    print('\nOutput file saved sucessfully!')
+
+@click.command()
+@click.argument('input_file', type=click.File('r'))
+
+def print_tree(input_file):
+    input_code = input_file.read()
+    tokens = lexer(input_code)
+    print('Tokens:\n', tokens)
+    syntatic_tree = parser(tokens)
+    print("\nTree:")
+    pprint.pprint(syntatic_tree)
+    treatOutputFile(syntatic_tree)
+
+if __name__ == '__main__':
+    print_tree()
